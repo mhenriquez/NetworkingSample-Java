@@ -2,13 +2,9 @@ package edu.seminolestate.networking;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
+import java.io.*;
+import java.net.*;
+import java.nio.file.*;
 import javax.swing.*;
 
 public class ServerGUI extends JFrame implements ActionListener
