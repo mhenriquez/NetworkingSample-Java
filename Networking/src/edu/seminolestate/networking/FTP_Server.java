@@ -1,6 +1,6 @@
 package edu.seminolestate.networking;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 
 /**
  * 
@@ -8,11 +8,13 @@ import javax.swing.*;
  * @date July 3, 2016
  *
  */
-public class Server {
+public class FTP_Server {
 
 	public static void main(String[] args) {
 		//
 		ServerGUI window = new ServerGUI("FTP Server", true);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		window.runServer();
 	}
+
 }

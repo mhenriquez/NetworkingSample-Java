@@ -1,6 +1,6 @@
 package edu.seminolestate.networking;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 
 /**
  * 
@@ -8,12 +8,13 @@ import javax.swing.*;
  * @date July 3, 2016
  *
  */
-public class Client {
+public class FTP_Client {
 
 	public static void main(String[] args) {
 		//
-		ClientGUI window = new ClientGUI("", true);
+		ClientGUI window = new ClientGUI("FTP Client", true);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		window.runClient();
 	}
 
 }

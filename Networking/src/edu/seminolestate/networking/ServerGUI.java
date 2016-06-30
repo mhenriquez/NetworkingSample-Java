@@ -9,12 +9,16 @@ import javax.swing.*;
 
 public class ServerGUI extends JFrame implements ActionListener
 {
-	//Instance Variables
-	private String x;
+	//Networking Objects
+	private ServerSocket server;
+	private Socket connection;
+	
+	private ObjectInputStream input;
+	private ObjectOutputStream output;
 	
 	//JPanels
 	private JPanel pnlNorth;
-	private JPanel pnlSouth;
+	private JPanel pnlSouth; 
 	
 	//JButtons
 	private JButton btnDestination;
@@ -31,7 +35,7 @@ public class ServerGUI extends JFrame implements ActionListener
 	private JFileChooser fileChooser;
 	
 	//Constructor
-	public ServerGUI(String title, boolean visible){
+	public ServerGUI(String title, boolean visible) {
 		super(title);
 		
 		//Set size and lock it
@@ -46,13 +50,14 @@ public class ServerGUI extends JFrame implements ActionListener
 		
 		//Set default directory path
 		Path path = getCurrentDirectoryPath();
-		txtServerLog.append("Transferred files will be in " + path.toString() + " unless you change this destination.\n");
+		txtServerLog.append("Transferred files will be in: " + path.toString() + " (unless you change this destination).\n");
 		
 		//Render JFrame	
 		setVisible(visible); //<== Must be applied after UI is initialized to render components
 	}
 	
-	private void initUserInterface(){
+	private void initUserInterface() {
+		
 		//Instantiate new border layout for JFrame
 		setLayout(new BorderLayout());
 		
@@ -72,7 +77,7 @@ public class ServerGUI extends JFrame implements ActionListener
 		btnExit.addActionListener(this);
 		
 		//Instantiate scroll pane and text area
-		txtServerLog = new JTextArea("Server waiting for connections.\n", 15, 48);
+		txtServerLog = new JTextArea("Waiting for connection.\n", 15, 48);
 		scrollPane = new JScrollPane(txtServerLog, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
 		//Instantiate and add components to north panel
@@ -91,17 +96,64 @@ public class ServerGUI extends JFrame implements ActionListener
 		
 	}
 	
-	private void createServerSocket(){
-		
-		//Step 1: Create a ServerSocket
+	public void runServer() {
+		//
 		try {
-			ServerSocket server = new ServerSocket(80, 3);
-		} catch (IOException ex) {
+			//Step 1: Create a ServerSocket
+			server = new ServerSocket(8000); //Set server to use port 21
+			
+			while(true) {
+				try {
+					//Step 2: Wait for connection
+					connection = server.accept();
+					//Log connection
+					txtServerLog.append("Connected to client \n" + connection.getInetAddress().getHostName());
+					
+					//Step 3: Get the Socket's I/O streams
+					output = new ObjectOutputStream(connection.getOutputStream()); //Set up output stream for objects
+					output.flush();
+					input = new ObjectInputStream(connection.getInputStream()); //Set up input stream for objects
+					
+					//Step 4: Process connection with client
+					String message = "Connection successful";
+					output.writeObject("Server>>>" + message);
+					output.flush();
+					
+				}
+				catch (EOFException ex) {
+					displayMessage("");
+				}
+				finally {
+					//Close the connection
+					closeConnection();
+				}
+			}
+			
+		} 
+		catch (IOException ex) {
 			ex.printStackTrace();
 		}
-		
-		//Step 2: Wait for connection
-		
+	}
+	
+	private void closeConnection() {
+		try {
+			output.close();
+			input.close();
+			connection.close();
+		} 
+		catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	private void displayMessage(final String message){
+		SwingUtilities.invokeLater(
+			new Runnable() {
+				public void run(){
+					
+				}
+			}
+		);
 	}
 
 	@Override
@@ -109,17 +161,20 @@ public class ServerGUI extends JFrame implements ActionListener
 		Object source = e.getSource();
 		
 		//If exit button is clicked
-		if(source == btnExit){
+		if(source == btnExit) {
+			//Close the connection
+			//closeConnection(); //gives error
+			//
 			System.exit(0);
 		}
 		
 		//If help button is clicked
-		if(source == btnHelp){
+		if(source == btnHelp) {
 			
 		}
 		
 		//If destination button is clicked
-		if(source == btnDestination){
+		if(source == btnDestination) {
 			try {
 				analyzePath();
 			} catch (IOException ex) {
@@ -133,13 +188,13 @@ public class ServerGUI extends JFrame implements ActionListener
 		Path path = getSelectedDirectoryPath();
 		
 		//If path exists, display info
-		if(path != null && Files.exists(path)){
+		if(path != null && Files.exists(path)) {
 			//Gather directory information
-			txtServerLog.append("Transferred files will now be in " + path.toString() + ".\n");
+			txtServerLog.append("Files will now be transferred to: " + path.toString() + ".\n");
 		}
 	}
 	
-	private Path getCurrentDirectoryPath(){
+	private Path getCurrentDirectoryPath() {
 		//Instantiate new file chooser
 		fileChooser = new JFileChooser();
 		
@@ -158,7 +213,7 @@ public class ServerGUI extends JFrame implements ActionListener
 		int result = fileChooser.showOpenDialog(this);
 		
 		//If user clicks cancel button on dialog window
-		if(result == JFileChooser.CANCEL_OPTION){
+		if(result == JFileChooser.CANCEL_OPTION) {
 			return null;
 		}
 		
