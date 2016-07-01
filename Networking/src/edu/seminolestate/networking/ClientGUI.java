@@ -36,13 +36,13 @@ public class ClientGUI extends JFrame implements ActionListener
 	private JScrollPane scrollPane;
 	
 	//JTextArea
-	private JTextArea txtLog;
+	private JTextArea txtClientLog;
 	
 	public ClientGUI(String title, boolean visible){
 		super(title);
 		
 		//Set size and lock it
-		setSize(600, 370);
+		setSize(600, 350);
 		setResizable(false);
 		
 		//Center window to screen
@@ -62,7 +62,7 @@ public class ClientGUI extends JFrame implements ActionListener
 		//Instantiate connect button
 		btnConnect = new JButton("Connect");
 		btnConnect.setPreferredSize(new Dimension(100, 40));
-		//btnConnect.addActionListener(this);
+		btnConnect.addActionListener(this);
 		
 		//Instantiate disconnect button
 		btnDisconnect = new JButton("Disconnect");
@@ -80,8 +80,8 @@ public class ClientGUI extends JFrame implements ActionListener
 		//btnExit.addActionListener(this);
 		
 		//Instantiate scroll pane and text area
-		txtLog = new JTextArea("", 15, 48);
-		scrollPane = new JScrollPane(txtLog);
+		txtClientLog = new JTextArea("", 15, 48);
+		scrollPane = new JScrollPane(txtClientLog);
 		
 		//Instantiate and add components to north panel
 		pnlNorth = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -98,34 +98,50 @@ public class ClientGUI extends JFrame implements ActionListener
 	}
 	
 	public void runClient(){
-		//
+		//Try connecting to server
 		try {
-			//Step 1: Create a socket to make connection to server
+			//Step 1: Create a socket object
 			client = new Socket(InetAddress.getByName("127.0.0.1"), 8000);
 			
-			//Step 2: Get the Socket's I/O streams
-			output = new ObjectOutputStream(client.getOutputStream()); //Set up output stream for objects
-			output.flush();
-			input = new ObjectInputStream(client.getInputStream()); //Set up input stream for objects
+			//Step 2: Get the output stream object (write)
+			output = new ObjectOutputStream(client.getOutputStream());
 			
-			//Step 3: Process connection with server
+			//Step 3: Get the input stream object (read)
+			input = new ObjectInputStream(client.getInputStream());
 			
+			//Read server message
 			try {
-				txtLog.append((String) input.readObject());
-			}
-			catch (ClassNotFoundException ex) {
-				ex.printStackTrace();
+				txtClientLog.append((String) input.readObject() + "\n");
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
 		}
 		catch (IOException ex) {
-			ex.printStackTrace();
+			displayMessage("Cannot connect to server: " + ex.getMessage() + "\n");
 		}
+	}
+	
+	private void displayMessage(final String message){
+		SwingUtilities.invokeLater(
+			new Runnable() {
+				public void run(){
+					txtClientLog.append(message);
+				}
+			}
+		);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
+		//window.runClient();
+		Object source = e.getSource();
+		
+		//If exit button is clicked
+		if(source == btnConnect) {
+			runClient();
+		}
 		
 	}
 }

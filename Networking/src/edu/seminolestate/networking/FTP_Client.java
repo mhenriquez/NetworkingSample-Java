@@ -14,7 +14,6 @@ public class FTP_Client {
 		//
 		ClientGUI window = new ClientGUI("FTP Client", true);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		window.runClient();
 	}
 
 }

@@ -99,24 +99,25 @@ public class ServerGUI extends JFrame implements ActionListener
 	public void runServer() {
 		//
 		try {
-			//Step 1: Create a ServerSocket
+			//Step 1: Create a ServerSocket object
 			server = new ServerSocket(8000); //Set server to use port 21
 			
 			while(true) {
 				try {
-					//Step 2: Wait for connection
+					//Step 2: Listen for client requests
 					connection = server.accept();
 					//Log connection
-					txtServerLog.append("Connected to client \n" + connection.getInetAddress().getHostName());
+					txtServerLog.append("Connected to client: " + connection.getInetAddress().getHostName() + "\n");
 					
-					//Step 3: Get the Socket's I/O streams
+					//Step 3: Get the input stream object (write)
 					output = new ObjectOutputStream(connection.getOutputStream()); //Set up output stream for objects
 					output.flush();
+					
+					//Step 4: Get the output stream object (read)
 					input = new ObjectInputStream(connection.getInputStream()); //Set up input stream for objects
 					
-					//Step 4: Process connection with client
-					String message = "Connection successful";
-					output.writeObject("Server>>>" + message);
+					//Step 5: Process connection with client
+					output.writeObject("Server>>> Connection successful");
 					output.flush();
 					
 				}
@@ -124,7 +125,7 @@ public class ServerGUI extends JFrame implements ActionListener
 					displayMessage("");
 				}
 				finally {
-					//Close the connection
+					//Step 6: Close the socket connection
 					closeConnection();
 				}
 			}
